@@ -1,0 +1,9 @@
+cmake-build-*/
+build/
+
+.idea/
+*.user
+
+*.exe
+*.dll
+*.vst3
