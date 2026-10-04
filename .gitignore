@@ -7,3 +7,8 @@ build/
 *.exe
 *.dll
 *.vst3
+
+__pycache__/
+.venv/
+
+data*/
