@@ -2,3 +2,5 @@ librosa
 numpy
 musdb
 random
+soundfile 
+torch
