@@ -4,11 +4,9 @@ import librosa
 import numpy as np
 import soundfile as sf
 
-
 class Dataset:
-
     def __init__(
-        self, path, isTrain=True, cut_length=2, size_multiplier=50, fft_size=2048, hop_length=None, win_length=None
+        self, path, isTrain=True, cut_length=2, size_multiplier=50, fft_size=2048, hop_length=None, win_length=None, window='hann', center=True, pad_mode='constant' 
         ):
         self.mus = musdb.DB(root=path, is_wav=True, subsets='train', split="train" if isTrain else "valid")
         self.isTrain = isTrain
@@ -18,6 +16,9 @@ class Dataset:
         self.fft_size = fft_size
         self.hop_length = hop_length
         self.win_length = win_length
+        self.window = window
+        self.center = center
+        self.pad_mode = pad_mode
         self.chunks = []
 
         if not win_length:
@@ -44,10 +45,7 @@ class Dataset:
             return len(self.chunks)
 
         
-
-
     def __getitem__(self, idx):
-
         if self.isTrain: 
             track_idx = idx % len(self.mus)
             track = self.mus.tracks[track_idx]
@@ -57,10 +55,8 @@ class Dataset:
             track = self.mus.tracks[track_idx]
             start_frame = int(start * track.rate)
 
-        
         num_frames = int(self.cut_length * track.rate)
 
-            
         mixed = sf.read(track.path, start=start_frame, frames=num_frames, dtype='float32')[0]
         vocals = sf.read(track.sources['vocals'].path, start=start_frame, frames=num_frames, dtype='float32')[0]
 
@@ -80,7 +76,7 @@ class Dataset:
 
     
     def to_spec(self, signal):
-        spec = librosa.stft(signal, n_fft=self.fft_size, hop_length=self.hop_length, win_length=self.win_length, window='hann', center=True, pad_mode='constant')
+        spec = librosa.stft(signal, n_fft=self.fft_size, hop_length=self.hop_length, win_length=self.win_length, window=self.window, center=self.center, pad_mode=self.pad_mode)
         spec_norm = np.abs(spec)
 
         return spec_norm

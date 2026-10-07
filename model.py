@@ -46,7 +46,7 @@ class UNet(torch.nn.Module):
         self.encoders = torch.nn.ModuleList([Encoder(self.channels[i], self.channels[i+1]) for i in range(depth)])
         self.decoders = torch.nn.ModuleList([Decoder(512, 256, is_dropout=True), Decoder(512, 128, is_dropout=True), Decoder(256, 64, is_dropout=True), Decoder(128, 32), Decoder(64, 16), Decoder(32, 1, is_last=True)])
         
-
+    # input.shape = [B, 1, 1025, T]
     def forward(self, x):
         # odcinamy bin nyquista
         length = x.shape[-1]
@@ -71,7 +71,7 @@ class UNet(torch.nn.Module):
             x = self.decoders[i](x)
 
         x = torch.sigmoid(x)
-        #przycinamy czas i doklejanmy spowrotem bin nyquista
+        # przycinamy czas i doklejanmy spowrotem bin nyquista
         x = x[:, :, :, :length]
         nyq_bin = x[:, :, -1:, :]
         x = torch.cat((x, nyq_bin), dim=2)
